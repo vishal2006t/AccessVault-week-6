@@ -1,0 +1,59 @@
+# DG Interns Hub - Week 6: Backend Integration & Authentication System
+# Docker Compose configuration for MongoDB and Full-Stack Services
+
+version: '3.8'
+
+services:
+  # MongoDB Database Service
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb_week6
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: week6_auth
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - auth_network
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'db.runCommand({serverStatus:1}).ok' | mongosh localhost:27017/test --quiet"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # Optional Full-Stack Backend Service (Profile: full)
+  # Run standalone Node locally OR run with: docker compose --profile full up -d
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend_week6
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongodb:27017/week6_auth
+      - JWT_SECRET=dg_interns_hub_week6_super_secure_jwt_secret_key_2026
+      - JWT_EXPIRES_IN=1d
+      - NODE_ENV=production
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - auth_network
+    profiles:
+      - full
+
+volumes:
+  # Persistent volume for MongoDB database files
+  mongodb_data:
+    name: week6_mongodb_data
+
+networks:
+  auth_network:
+    name: week6_auth_network
+    driver: bridge
