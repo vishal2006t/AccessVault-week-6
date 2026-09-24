@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Password Checklist Elements
   const critLength = document.getElementById('critLength');
+  const critUpper = document.getElementById('critUpper');
+  const critLower = document.getElementById('critLower');
+  const critSpecial = document.getElementById('critSpecial');
   const critMatch = document.getElementById('critMatch');
 
   // Password Visibility Toggles
@@ -37,6 +40,36 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'dashboard.html';
     return;
   }
+
+  // ==========================================
+  // Helper: Comprehensive Password Validation Rule
+  // ==========================================
+  const validatePassword = (password) => {
+    if (!password) {
+      return { isValid: false, message: 'Password is required.' };
+    }
+    const missing = [];
+    if (password.length < 8) {
+      missing.push('at least 8 characters');
+    }
+    if (!/[A-Z]/.test(password)) {
+      missing.push('at least 1 uppercase letter (A-Z)');
+    }
+    if (!/[a-z]/.test(password)) {
+      missing.push('at least 1 lowercase letter (a-z)');
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password)) {
+      missing.push('at least 1 special character (e.g. @, #, $, %, !)');
+    }
+
+    if (missing.length > 0) {
+      return {
+        isValid: false,
+        message: `Password must contain ${missing.join(', ')}.`,
+      };
+    }
+    return { isValid: true, message: '' };
+  };
 
   // ==========================================
   // Helper: Display Alerts (Success / Danger / Info)
@@ -62,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alertIcon.innerHTML = `
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="8" x2="12.01" y2="8"></line>
         </svg>`;
     }
@@ -120,31 +153,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const pwd = passwordInput.value;
     const confirmPwd = confirmPasswordInput.value;
 
-    // Check length >= 6
-    if (pwd.length >= 6) {
-      critLength.classList.add('met');
-      critLength.querySelector('svg').innerHTML = `
-        <polyline points="20 6 9 17 4 12"></polyline>
-      `;
-    } else {
-      critLength.classList.remove('met');
-      critLength.querySelector('svg').innerHTML = `
-        <circle cx="12" cy="12" r="10"></circle>
-      `;
-    }
+    const setStatus = (el, isMet) => {
+      if (!el) return;
+      if (isMet) {
+        el.classList.add('met');
+        el.querySelector('svg').innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+      } else {
+        el.classList.remove('met');
+        el.querySelector('svg').innerHTML = '<circle cx="12" cy="12" r="10"></circle>';
+      }
+    };
 
-    // Check matching passwords
-    if (pwd.length > 0 && pwd === confirmPwd) {
-      critMatch.classList.add('met');
-      critMatch.querySelector('svg').innerHTML = `
-        <polyline points="20 6 9 17 4 12"></polyline>
-      `;
-    } else {
-      critMatch.classList.remove('met');
-      critMatch.querySelector('svg').innerHTML = `
-        <circle cx="12" cy="12" r="10"></circle>
-      `;
-    }
+    setStatus(critLength, pwd.length >= 8);
+    setStatus(critUpper, /[A-Z]/.test(pwd));
+    setStatus(critLower, /[a-z]/.test(pwd));
+    setStatus(critSpecial, /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pwd));
+    setStatus(critMatch, pwd.length > 0 && pwd === confirmPwd);
   };
 
   passwordInput.addEventListener('input', updateCriteria);
@@ -188,14 +212,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (!password) {
-      showAlert('Password is required.', 'danger');
-      passwordInput.focus();
-      return;
-    }
-
-    if (password.length < 6) {
-      showAlert('Password must be at least 6 characters long.', 'danger');
+    // Comprehensive Password Complexity Check (min 8 chars, uppercase, lowercase, special char)
+    const pwdCheck = validatePassword(password);
+    if (!pwdCheck.isValid) {
+      showAlert(pwdCheck.message, 'danger');
       passwordInput.focus();
       return;
     }

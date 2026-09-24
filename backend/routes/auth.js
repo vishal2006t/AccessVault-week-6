@@ -26,6 +26,48 @@ const generateToken = (userId) => {
 };
 
 /**
+ * Helper Function: Comprehensive Password Validation Rule
+ * Requirements:
+ * - Minimum 8 characters
+ * - At least 1 uppercase letter (A-Z)
+ * - At least 1 lowercase letter (a-z)
+ * - At least 1 special character (e.g. @, #, $, %, !)
+ */
+const validatePassword = (password) => {
+  if (!password) {
+    return {
+      isValid: false,
+      message: 'Password is required.',
+      missing: ['Password is required'],
+    };
+  }
+
+  const missing = [];
+  if (password.length < 8) {
+    missing.push('at least 8 characters');
+  }
+  if (!/[A-Z]/.test(password)) {
+    missing.push('at least 1 uppercase letter (A-Z)');
+  }
+  if (!/[a-z]/.test(password)) {
+    missing.push('at least 1 lowercase letter (a-z)');
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password)) {
+    missing.push('at least 1 special character (for example: @, #, $, %, !)');
+  }
+
+  if (missing.length > 0) {
+    return {
+      isValid: false,
+      message: `Password must contain ${missing.join(', ')}.`,
+      missing,
+    };
+  }
+
+  return { isValid: true, message: '', missing: [] };
+};
+
+/**
  * Helper Function: Basic Email Regex Validation
  */
 const isValidEmail = (email) => {
@@ -67,11 +109,12 @@ router.post('/signup', async (req, res) => {
       });
     }
 
-    // D. Validate Password length
-    if (password.length < 6) {
+    // D. Validate Password complexity rules (min 8 chars, uppercase, lowercase, special char)
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
       return res.status(400).json({
         success: false,
-        message: 'Password must be at least 6 characters long.',
+        message: passwordValidation.message,
       });
     }
 
@@ -156,9 +199,18 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // B. Validate Password complexity rules (min 8 chars, uppercase, lowercase, special char)
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: passwordValidation.message,
+      });
+    }
+
     const normalizedEmail = email.trim().toLowerCase();
 
-    // B. Find user in database
+    // C. Find user in database
     const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       // Use uniform message for security (don't reveal whether email or password was wrong)

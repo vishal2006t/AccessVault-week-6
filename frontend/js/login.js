@@ -32,6 +32,36 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
+  // Helper: Comprehensive Password Validation Rule
+  // ==========================================
+  const validatePassword = (password) => {
+    if (!password) {
+      return { isValid: false, message: 'Please enter your password.' };
+    }
+    const missing = [];
+    if (password.length < 8) {
+      missing.push('at least 8 characters');
+    }
+    if (!/[A-Z]/.test(password)) {
+      missing.push('at least 1 uppercase letter (A-Z)');
+    }
+    if (!/[a-z]/.test(password)) {
+      missing.push('at least 1 lowercase letter (a-z)');
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password)) {
+      missing.push('at least 1 special character (e.g. @, #, $, %, !)');
+    }
+
+    if (missing.length > 0) {
+      return {
+        isValid: false,
+        message: `Password must contain ${missing.join(', ')}.`,
+      };
+    }
+    return { isValid: true, message: '' };
+  };
+
+  // ==========================================
   // Helper: Display Alerts
   // ==========================================
   const showAlert = (message, type = 'danger') => {
@@ -112,8 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (!password) {
-      showAlert('Please enter your password.', 'danger');
+    const pwdCheck = validatePassword(password);
+    if (!pwdCheck.isValid) {
+      showAlert(pwdCheck.message, 'danger');
       passwordInput.focus();
       return;
     }

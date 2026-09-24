@@ -67,59 +67,107 @@ function get(path, token) {
 }
 
 async function runTests() {
-  console.log('--- 1. Testing Signup Validations ---');
+  console.log('========================================================');
+  console.log('🧪 DG INTERNS HUB - WEEK 6 PASSWORD VALIDATION TESTS');
+  console.log('========================================================\n');
+
+  console.log('--- 1. Testing Signup Password Validation Rules ---');
   
-  // Test 1: Empty Signup
+  // Test 1: Empty Fields
   const res1 = await post('/api/auth/signup', {});
-  console.log('Test 1 (Empty Body):', res1.status === 400 ? '✅ PASS' : '❌ FAIL', res1.body.message);
+  console.log('Test 1 (Empty Body):', res1.status === 400 ? '✅ PASS' : '❌ FAIL', '->', res1.body.message);
 
   // Test 2: Invalid Email
   const res2 = await post('/api/auth/signup', {
-    name: 'Student',
+    name: 'Vishal',
     email: 'notanemail',
-    password: 'password123',
-    confirmPassword: 'password123',
+    password: 'Vishal@123',
+    confirmPassword: 'Vishal@123',
   });
-  console.log('Test 2 (Invalid Email):', res2.status === 400 ? '✅ PASS' : '❌ FAIL', res2.body.message);
+  console.log('Test 2 (Invalid Email):', res2.status === 400 ? '✅ PASS' : '❌ FAIL', '->', res2.body.message);
 
-  // Test 3: Short Password
+  // Test 3: Example 'V@123' (Invalid: less than 8 characters, missing lowercase)
   const res3 = await post('/api/auth/signup', {
-    name: 'Student',
-    email: 'student@example.com',
-    password: '123',
-    confirmPassword: '123',
+    name: 'Vishal',
+    email: 'v1@example.com',
+    password: 'V@123',
+    confirmPassword: 'V@123',
   });
-  console.log('Test 3 (Short Password):', res3.status === 400 ? '✅ PASS' : '❌ FAIL', res3.body.message);
+  console.log("Test 3 ('V@123' < 8 chars):", res3.status === 400 ? '✅ PASS' : '❌ FAIL', '->', res3.body.message);
 
-  // Test 4: Password Mismatch
+  // Test 4: Example 'vishal123' (Invalid: missing uppercase & special char)
   const res4 = await post('/api/auth/signup', {
-    name: 'Student',
-    email: 'student@example.com',
-    password: 'password123',
-    confirmPassword: 'password456',
+    name: 'Vishal',
+    email: 'v2@example.com',
+    password: 'vishal123',
+    confirmPassword: 'vishal123',
   });
-  console.log('Test 4 (Password Mismatch):', res4.status === 400 ? '✅ PASS' : '❌ FAIL', res4.body.message);
+  console.log("Test 4 ('vishal123' no uppercase, no special):", res4.status === 400 ? '✅ PASS' : '❌ FAIL', '->', res4.body.message);
 
-  console.log('\n--- 2. Testing Login Validations ---');
-  // Test 5: Missing Login Fields
-  const res5 = await post('/api/auth/login', {});
-  console.log('Test 5 (Missing Login Fields):', res5.status === 400 ? '✅ PASS' : '❌ FAIL', res5.body.message);
+  // Test 5: Example 'VISHAL@123' (Invalid: missing lowercase)
+  const res5 = await post('/api/auth/signup', {
+    name: 'Vishal',
+    email: 'v3@example.com',
+    password: 'VISHAL@123',
+    confirmPassword: 'VISHAL@123',
+  });
+  console.log("Test 5 ('VISHAL@123' no lowercase):", res5.status === 400 ? '✅ PASS' : '❌ FAIL', '->', res5.body.message);
+
+  // Test 6: Example 'Vishal123' (Invalid: missing special character)
+  const res6 = await post('/api/auth/signup', {
+    name: 'Vishal',
+    email: 'v4@example.com',
+    password: 'Vishal123',
+    confirmPassword: 'Vishal123',
+  });
+  console.log("Test 6 ('Vishal123' no special character):", res6.status === 400 ? '✅ PASS' : '❌ FAIL', '->', res6.body.message);
+
+  // Test 7: Password Mismatch
+  const res7 = await post('/api/auth/signup', {
+    name: 'Vishal',
+    email: 'v5@example.com',
+    password: 'Vishal@123',
+    confirmPassword: 'Vishal@999',
+  });
+  console.log('Test 7 (Password Mismatch):', res7.status === 400 ? '✅ PASS' : '❌ FAIL', '->', res7.body.message);
+
+  console.log('\n--- 2. Testing Login Password Validation Rules ---');
+
+  // Test 8: Login Missing Fields
+  const res8 = await post('/api/auth/login', {});
+  console.log('Test 8 (Missing Login Fields):', res8.status === 400 ? '✅ PASS' : '❌ FAIL', '->', res8.body.message);
+
+  // Test 9: Login with Invalid Password 'vishal123'
+  const res9 = await post('/api/auth/login', {
+    email: 'test@example.com',
+    password: 'vishal123',
+  });
+  console.log("Test 9 (Login 'vishal123' invalid):", res9.status === 400 ? '✅ PASS' : '❌ FAIL', '->', res9.body.message);
+
+  // Test 10: Login with Invalid Password 'V@123' (< 8 chars)
+  const res10 = await post('/api/auth/login', {
+    email: 'test@example.com',
+    password: 'V@123',
+  });
+  console.log("Test 10 (Login 'V@123' < 8 chars):", res10.status === 400 ? '✅ PASS' : '❌ FAIL', '->', res10.body.message);
 
   console.log('\n--- 3. Testing Protected Route Without Token ---');
-  // Test 6: Access /api/auth/me without Token
-  const res6 = await get('/api/auth/me');
-  console.log('Test 6 (No Token on /api/auth/me):', res6.status === 401 ? '✅ PASS' : '❌ FAIL', res6.body.message);
+  // Test 11: Access /api/auth/me without Token
+  const res11 = await get('/api/auth/me');
+  console.log('Test 11 (No Token on /api/auth/me):', res11.status === 401 ? '✅ PASS' : '❌ FAIL', '->', res11.body.message);
 
-  // Test 7: Access /api/auth/me with Invalid Token
-  const res7 = await get('/api/auth/me', 'invalid_tampered_token');
-  console.log('Test 7 (Invalid Token):', res7.status === 401 ? '✅ PASS' : '❌ FAIL', res7.body.message);
+  // Test 12: Access /api/auth/me with Invalid Token
+  const res12 = await get('/api/auth/me', 'invalid_tampered_token');
+  console.log('Test 12 (Invalid Token):', res12.status === 401 ? '✅ PASS' : '❌ FAIL', '->', res12.body.message);
 
   console.log('\n--- 4. Testing Logout Route ---');
-  // Test 8: Logout Route
-  const res8 = await post('/api/auth/logout', {});
-  console.log('Test 8 (Logout):', res8.status === 200 ? '✅ PASS' : '❌ FAIL', res8.body.message);
+  // Test 13: Logout Route
+  const res13 = await post('/api/auth/logout', {});
+  console.log('Test 13 (Logout):', res13.status === 200 ? '✅ PASS' : '❌ FAIL', '->', res13.body.message);
 
-  console.log('\nAll validation and security checks completed!');
+  console.log('\n========================================================');
+  console.log('🎉 ALL PASSWORD VALIDATION & AUTH TESTS COMPLETED!');
+  console.log('========================================================\n');
 }
 
 runTests().catch(console.error);
