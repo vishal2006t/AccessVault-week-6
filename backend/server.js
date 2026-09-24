@@ -17,18 +17,19 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 
-// 1. Load Environment Variables from root .env or local
+// 1. Load Environment Variables (.env in backend or root)
+dotenv.config({ path: path.join(__dirname, '.env') });
 dotenv.config({ path: path.join(__dirname, '../.env') });
-// Also fallback to current directory .env if root is not found
 dotenv.config();
 
 const connectDB = require('./config/db.js');
 const authRoutes = require('./routes/auth');
+const fs = require('fs');
 
 // 2. Initialize Express App
 const app = express();
 
-// 3. Connect to MongoDB
+// 3. Connect to MongoDB Atlas
 connectDB();
 
 // 4. Security Middlewares
@@ -40,7 +41,7 @@ app.use(
   })
 );
 
-// CORS configuration - Allows requests from localhost or external frontend clients
+// CORS configuration - Allows requests from localhost, Live Server, or external frontend clients
 app.use(
   cors({
     origin: true, // Reflect request origin (supports Live Server, ports 5500, 3000, 5000, etc.)
@@ -85,21 +86,41 @@ app.get('/api/health', (req, res) => {
     uptimeSeconds: Math.floor(process.uptime()),
     database: {
       status: dbStatus,
-      name: mongoose.connection.name || 'week6_auth',
+      name: mongoose.connection.name || 'test',
     },
     environment: process.env.NODE_ENV || 'development',
   });
 });
 
 // 8. Serve Frontend Static Files
-// Allows accessing the full stack directly via http://localhost:5000/
+// Allows accessing the full stack directly via http://localhost:5000/ if frontend exists
 const frontendPath = path.join(__dirname, '../frontend');
-app.use(express.static(frontendPath));
+const hasFrontend = fs.existsSync(frontendPath);
 
-// Explicit route for Root: Serves index.html
-app.get('/', (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'));
-});
+if (hasFrontend) {
+  app.use(express.static(frontendPath));
+  
+  // Explicit route for Root: Serves index.html
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+} else {
+  // If running isolated in container, provide friendly JSON greeting at root
+  app.get('/', (req, res) => {
+    res.status(200).json({
+      success: true,
+      message: 'DG Interns Hub - Week 6 Authentication Backend API is running!',
+      status: 'healthy',
+      endpoints: {
+        health: '/api/health',
+        signup: 'POST /api/auth/signup',
+        login: 'POST /api/auth/login',
+        me: 'GET /api/auth/me',
+        logout: 'POST /api/auth/logout',
+      },
+    });
+  });
+}
 
 // 9. 404 Handler for Unmatched API routes
 app.all('/api/*', (req, res) => {
@@ -111,8 +132,7 @@ app.all('/api/*', (req, res) => {
 
 // 10. Fallback for Frontend Single-Page / Direct HTML Navigation
 app.get('*', (req, res) => {
-  // If request looks like a page request, serve index.html
-  if (req.accepts('html')) {
+  if (hasFrontend && req.accepts('html')) {
     res.sendFile(path.join(frontendPath, 'index.html'));
   } else {
     res.status(404).json({ success: false, message: 'Resource not found' });
@@ -128,16 +148,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 12. Start Server
+// 12. Start Server - Listening explicitly on 0.0.0.0
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const HOST = '0.0.0.0';
+
+app.listen(PORT, HOST, () => {
   console.log(`\n======================================================`);
   console.log(`🚀 DG Interns Hub - Week 6 Auth System Server Running!`);
   console.log(`🌐 Local Server URL : http://localhost:${PORT}`);
-  console.log(`📄 Frontend Landing : http://localhost:${PORT}/index.html`);
-  console.log(`🔐 Login Page       : http://localhost:${PORT}/login.html`);
-  console.log(`📝 Signup Page      : http://localhost:${PORT}/signup.html`);
-  console.log(`📊 Dashboard Page   : http://localhost:${PORT}/dashboard.html`);
+  console.log(`🌐 Network Bind     : ${HOST}:${PORT}`);
   console.log(`🩺 Health API Check : http://localhost:${PORT}/api/health`);
   console.log(`======================================================\n`);
 });

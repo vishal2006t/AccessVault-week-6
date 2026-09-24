@@ -22,10 +22,10 @@ const connectDB = async () => {
   } catch (error) {
     console.error('❌ MongoDB Connection Error:', error.message);
     console.error('\n💡 Troubleshooting Tips for Student/Evaluator:');
-    console.error('   1. Ensure Docker Desktop is running.');
-    console.error('   2. Start MongoDB container by running: docker compose up -d');
-    console.error('   3. Verify container status with: docker ps');
-    console.error('   4. Check your MONGODB_URI in the .env file.\n');
+    console.error('   1. Verify your MONGODB_URI connection string in .env / backend/.env.');
+    console.error('   2. Ensure your IP address is whitelisted in MongoDB Atlas (Network Access -> Add 0.0.0.0/0).');
+    console.error('   3. Check your database username and password in the Atlas URI.');
+    console.error('   4. Ensure the Docker container has active internet connectivity.\n');
     
     // In production we exit on failure; in dev we allow the server to start so health/status routes still work
     if (process.env.NODE_ENV === 'production') {
