@@ -81,7 +81,7 @@ app.get('/api/health', (req, res) => {
   
   res.status(200).json({
     success: true,
-    message: 'Week 6 Authentication Server is healthy & operational',
+    message: 'AccessVault Authentication Server is healthy & operational',
     timestamp: new Date().toISOString(),
     uptimeSeconds: Math.floor(process.uptime()),
     database: {
@@ -109,7 +109,7 @@ if (hasFrontend) {
   app.get('/', (req, res) => {
     res.status(200).json({
       success: true,
-      message: 'DG Interns Hub - Week 6 Authentication Backend API is running!',
+      message: 'AccessVault — Secure User Authentication System Backend API is running!',
       status: 'healthy',
       endpoints: {
         health: '/api/health',
@@ -154,7 +154,7 @@ const HOST = '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
   console.log(`\n======================================================`);
-  console.log(`🚀 DG Interns Hub - Week 6 Auth System Server Running!`);
+  console.log(`🚀 AccessVault — Secure User Authentication System Running!`);
   console.log(`🌐 Local Server URL : http://localhost:${PORT}`);
   console.log(`🌐 Network Bind     : ${HOST}:${PORT}`);
   console.log(`🩺 Health API Check : http://localhost:${PORT}/api/health`);

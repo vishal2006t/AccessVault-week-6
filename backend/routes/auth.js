@@ -148,7 +148,7 @@ router.post('/signup', async (req, res) => {
     // I. Return success response (newUser.toJSON automatically excludes password)
     return res.status(201).json({
       success: true,
-      message: 'Account created successfully! Welcome to DG Interns Hub.',
+      message: 'Account created successfully! Welcome to AccessVault.',
       token,
       user: {
         id: newUser._id,

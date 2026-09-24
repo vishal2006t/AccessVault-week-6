@@ -68,7 +68,7 @@ function get(path, token) {
 
 async function runTests() {
   console.log('========================================================');
-  console.log('🧪 DG INTERNS HUB - WEEK 6 PASSWORD VALIDATION TESTS');
+  console.log('🧪 ACCESSVAULT — PASSWORD VALIDATION & AUTH TESTS');
   console.log('========================================================\n');
 
   console.log('--- 1. Testing Signup Password Validation Rules ---');

@@ -1,5 +1,5 @@
 /**
- * DG Interns Hub - Week 6: Authentication System
+ * AccessVault — Secure User Authentication System
  * Signup Page Logic (Vanilla JavaScript)
  */
 
