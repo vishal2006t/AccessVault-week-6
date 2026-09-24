@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # DG Interns Hub – Week 6: Backend Integration & Authentication System
 
 ![DG Interns Hub Week 6](https://img.shields.io/badge/DG%20Interns%20Hub-Week%206-6366f1?style=for-the-badge)
@@ -514,3 +515,6 @@ Use this concise walkthrough when explaining your project to your evaluator:
 > 3. *The client stores this token in `localStorage`. When the user navigates to the Dashboard, our custom **protect middleware** checks the `Authorization: Bearer <token>` header, decodes the signature with `jwt.verify()`, and verifies the user in MongoDB. If unauthorized, access is denied and the user is redirected to Login.*
 > 4. *Our database is containerized using **Docker Compose** with the official MongoDB image, port 27017, and a persistent Docker volume so all user data is safely preserved.*
 > 5. *Finally, we enforced security best practices including Helmet HTTP headers, CORS policies, rate limiting on authentication routes to prevent brute-force attacks, and safe JSON transformations that strip password hashes from all responses."*
+=======
+# AccessVault-week-6
+>>>>>>> 3a0d8d37394e27ed9072b14a96f49e16414080d0
