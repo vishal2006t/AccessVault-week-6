@@ -41,15 +41,31 @@ app.use(
   })
 );
 
-// CORS configuration - Allows requests from localhost, Live Server, or external frontend clients
-app.use(
-  cors({
-    origin: true, // Reflect request origin (supports Live Server, ports 5500, 3000, 5000, etc.)
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+// CORS configuration - Allows production frontend on Vercel and local development
+const allowedOrigins = [
+  'https://access-vault-week-6.vercel.app',
+  'http://localhost:5000',
+  'http://127.0.0.1:5000',
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, or Postman)
+    if (!origin) return callback(null, true);
+
+    const normalizedOrigin = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(normalizedOrigin)) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 // Body Parsers for incoming JSON and Form Data
 app.use(express.json({ limit: '10kb' }));
