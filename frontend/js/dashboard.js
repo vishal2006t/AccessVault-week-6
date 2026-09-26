@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // API Base URL - Detects Express (:5000) or Live Server
   const API_BASE_URL = window.location.origin.includes(':5000')
     ? window.location.origin
-    : 'http://localhost:5000';
+    : 'https://accessvault-week-6.onrender.com';
 
   // 1. Check for token in localStorage
   const token = localStorage.getItem('token');

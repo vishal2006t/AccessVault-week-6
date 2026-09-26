@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // API Base URL - Handles Express server (:5000) or Live Server
   const API_BASE_URL = window.location.origin.includes(':5000')
     ? window.location.origin
-    : 'http://localhost:5000';
+    : 'https://accessvault-week-6.onrender.com';
 
   // If already authenticated with a valid token, redirect to dashboard
   if (localStorage.getItem('token')) {
